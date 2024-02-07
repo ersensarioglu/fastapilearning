@@ -1,18 +1,21 @@
 """Fast api learning"""
-import time
-from typing import List
 from fastapi import FastAPI, Response, status, HTTPException
 from fastapi.params import Body
+from pydantic import BaseModel
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from app.routers import login, post, user
-from app import models, schemas
-from app.database import engine
+import time
+
 # from typing import Optional
 
-models.Base.metadata.create_all(bind=engine) # Use of our db model
-
 app = FastAPI() # Instance representing fastapi
+
+class Post(BaseModel):
+    """Any named class that will represent schema for a post"""
+    title: str
+    content: str
+    published: bool = True
+#    rating: Optional[int] = None
 
 while True:
     try:
@@ -24,7 +27,7 @@ while True:
         cursor = conn.cursor()
         print("Database connection was succesfull")
         break
-    except psycopg2.DatabaseError as error:
+    except Exception as error:
         print("Connecting to database failed")
         print("Error: ", error)
         time.sleep(2)
@@ -58,10 +61,6 @@ def find_index_post(my_id):
             return i
     return None
 
-app.include_router(post.router)
-app.include_router(user.router)
-app.include_router(login.router)
-
 @app.get("/") # Decorator links the function below to fastapi
               # and represents the path for GET request
 async def root(): # use async for a long operation or you don't need to wait for response.
@@ -69,14 +68,14 @@ async def root(): # use async for a long operation or you don't need to wait for
     """Get root"""
     return {"message": "Welcome to my API"} # Python dictionary automatically converted to json
 
-@app.get("/posts", response_model=List[schemas.Response])
-                                   # So using /posts in the url points to below function
+@app.get("/posts") # So using /posts in the url points to below function
 def get_posts():
     """Get all posts"""
     cursor.execute("""SELECT * FROM posts """)
     posts = cursor.fetchall()
+    print(posts)
 #    return {"data": my_posts}
-    return posts
+    return {"data": posts}
 
 @app.get("/posts/latest")  # this decorator should be positioned above the below decorator
                            # to be able to get priority, as it works with first match
@@ -84,21 +83,20 @@ def latest_post():
     """Get latest post"""
     return {"data": my_posts[len(my_posts) - 1]}
 
-@app.get("/posts/{my_id}", response_model=schemas.Response) # matches to a url
-                           # where given value in the root is mapped to id variable
+@app.get("/posts/{my_id}") # matches to a url where given value in the root is mapped to id variable
 # def get_post(id: int, response: Response):
 def get_post(my_id: int): # that id from decorator is passed as input parameter to function
                        # also validates if it is integer, otherwise throws error to user
     """Get a given post by id"""
     cursor.execute("""SELECT * FROM posts WHERE id = %s """, (str(my_id)))
-    my_post = cursor.fetchone()
+    post = cursor.fetchone()
     # post = find_post(int(my_id))
-    if not my_post:
+    if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Post with id: {my_id} was not found")
 #        response.status_code = status.HTTP_404_NOT_FOUND
 #        return {"message": f"Post with id: {id} was not found"}
-    return my_post
+    return {"data": post}
 
 @app.post("/createposts")
 def create_posts(payload: dict = Body(...)): # Gets everything from body of the message
@@ -107,8 +105,7 @@ def create_posts(payload: dict = Body(...)): # Gets everything from body of the 
     return {"new_posts": f"title: {payload['title']}, content: {payload['content']}"}
 
 @app.post("/createpost")
-def createpost(new_post: schemas.PostCreate): # Body will be validated
-                                # against given pydantic basemodel class
+def createpost(new_post: Post): # Body will be validated against given pydantic basemodel class
                                 # and then be assigned to variable defined here
     """Create a new post"""
     print(new_post) # See the format of basemodel
@@ -116,18 +113,18 @@ def createpost(new_post: schemas.PostCreate): # Body will be validated
     return {"new_post":
         f"title: {new_post.title}, content: {new_post.content}, published: {new_post.published}"}
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model=schemas.Response)
-def create_post(my_post: schemas.PostCreate):
+@app.post("/posts", status_code=status.HTTP_201_CREATED)
+def create_post(post: Post):
     """Create a new post"""
 #    post_dict = post.model_dump()
 #    post_dict['id'] = last_id() + 1
 #    my_posts.append(post_dict)
     cursor.execute(
         """INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
-        (my_post.title, my_post.content, my_post.published))
+        (post.title, post.content, post.published))
     new_post = cursor.fetchone()
     conn.commit()
-    return new_post
+    return {"data": new_post}
 
 @app.delete("/posts/{my_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(my_id: int):
@@ -144,11 +141,11 @@ def delete_post(my_id: int):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.put("/posts/{my_id}")
-def update_post(my_id: int, my_post: schemas.PostCreate):
+def update_post(my_id: int, post: Post):
     """Update a post"""
     cursor.execute(
         """UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s  RETURNING * """,
-        (my_post.title, my_post.content, my_post.published, str(my_id)))
+        (post.title, post.content, post.published, str(my_id)))
     updated_post = cursor.fetchone()
     conn.commit()
 #    index = find_index_post(my_id)
