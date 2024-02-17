@@ -3,24 +3,14 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr
 
-class PostBase(BaseModel):
-    """Base class that will represent schema for a post"""
-    title: str
-    content: str
-    published: bool = True
-#    rating: Optional[int] = None
+class Token(BaseModel):
+    """Token class"""
+    access_token: str
+    token_type: str
 
-class PostCreate(PostBase):
-    """Schema copied from Base"""
-
-class Response(PostBase):
-    """Schema for Response message"""
-    id: int
-    created_at: datetime
-
-    class Config:
-        """Helps to convert sqlachemy model of response"""
-        from_attributes = True
+class TokenData(BaseModel):
+    """Token Data"""
+    id: Optional[int] = None
 
 class UserCreate(BaseModel):
     """Base class for user table uqery"""
@@ -42,11 +32,23 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-class Token(BaseModel):
-    """Token class"""
-    access_token: str
-    token_type: str
+class PostBase(BaseModel):
+    """Base class that will represent schema for a post"""
+    title: str
+    content: str
+    published: bool = True
+#    rating: Optional[int] = None
 
-class TokenData(BaseModel):
-    """Token Data"""
-    id: Optional[str] = None
+class PostCreate(PostBase):
+    """Schema copied from Base"""
+
+class Response(PostBase):
+    """Schema for Response message"""
+    id: int
+    created_at: datetime
+    created_by: int
+    creator: UserOut
+
+    class Config:
+        """Helps to convert sqlachemy model of response"""
+        from_attributes = True

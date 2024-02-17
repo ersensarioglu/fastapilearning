@@ -1,5 +1,8 @@
 """Various local utilities"""
+import logging
 from passlib.context import CryptContext
+
+logging.getLogger('passlib').setLevel(logging.ERROR)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def my_hash(password: str):
