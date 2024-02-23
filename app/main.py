@@ -3,13 +3,25 @@ Command to start app
 uvicorn app.main:app --reload
 """
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, post, user, vote
-from app import models
-from app.database import engine
+# from app import models
+# from app.database import engine
 
-models.Base.metadata.create_all(bind=engine) # Use of our db model
+# This is to create tables automatically
+# But since we are using alembic, we don't need that
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI() # Instance representing fastapi
+
+# We define allowed origins if it is cross site access
+origins=["google.com"]
+app.add_middleware(CORSMiddleware,
+                   allow_origin=origins,
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"],
+)
 
 app.include_router(post.router)
 app.include_router(user.router)
