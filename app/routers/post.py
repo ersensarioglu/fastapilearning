@@ -2,6 +2,7 @@
 from typing import List, Optional
 from fastapi import status, Response, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app import models, oauth2, schemas
 from app.database import get_db
 
@@ -11,11 +12,11 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[schemas.Response])
-def test_posts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str] = ""): # Will create database defined in models.py
+def get_saposts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str] = ""): # Will create database defined in models.py
     """Test Sqlalchemy model"""
-    print(current_user.email)
-    print(limit)
+    print("start")
     posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all() # Get all posts
+#    results = db.query(models.Post, func.count(models.Vote.post_id)).join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).all()
     return posts
 
 @router.get("/{my_id}", response_model=schemas.Response)

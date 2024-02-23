@@ -1,7 +1,8 @@
 """Schema for api request and response"""
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from typing_extensions import Annotated
+from pydantic import BaseModel, EmailStr, Field
 
 class Token(BaseModel):
     """Token class"""
@@ -48,7 +49,18 @@ class Response(PostBase):
     created_at: datetime
     created_by: int
     creator: UserOut
+    votes: int
 
     class Config:
         """Helps to convert sqlachemy model of response"""
         from_attributes = True
+
+#class PostOut(PostBase):
+#
+#    class Config:
+#        """Helps to convert sqlachemy model of response"""
+#        from_attributes = True
+
+class Vote(BaseModel):
+    post_id: int
+    dir: Annotated[int, Field(strict=True, le=1, ge=0)]

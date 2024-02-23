@@ -1,6 +1,9 @@
-"""Fast api learning"""
+"""Fast api learning
+Command to start app
+uvicorn app.main:app --reload
+"""
 from fastapi import FastAPI
-from app.routers import auth, post, user
+from app.routers import auth, post, user, vote
 from app import models
 from app.database import engine
 
@@ -11,6 +14,7 @@ app = FastAPI() # Instance representing fastapi
 app.include_router(post.router)
 app.include_router(user.router)
 app.include_router(auth.router)
+app.include_router(vote.router)
 
 @app.get("/") # Decorator links the function below to fastapi
               # and represents the path for GET request
