@@ -15,9 +15,9 @@ from app.routers import auth, post, user, vote
 app = FastAPI() # Instance representing fastapi
 
 # We define allowed origins if it is cross site access
-origins=["google.com"]
+origins=["*"]
 app.add_middleware(CORSMiddleware,
-                   allow_origin=origins,
+                   allow_origins=origins,
                    allow_credentials=True,
                    allow_methods=["*"],
                    allow_headers=["*"],
