@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Optional
 from typing_extensions import Annotated
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 class Token(BaseModel):
     """Token class"""
@@ -20,13 +20,15 @@ class UserCreate(BaseModel):
 
 class UserOut(BaseModel):
     """Base class for user response"""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     email: EmailStr
     created_at: datetime
 
-    class Config:
-        """Helps to convert sqlachemy model of response"""
-        from_attributes = True
+#    class Config:
+#        """Helps to convert sqlachemy model of response"""
+#        from_attributes = True
 
 class UserLogin(BaseModel):
     """Base class for login"""
@@ -45,15 +47,17 @@ class PostCreate(PostBase):
 
 class Response(PostBase):
     """Schema for Response message"""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
     created_by: int
     creator: UserOut
     votes: int
 
-    class Config:
-        """Helps to convert sqlachemy model of response"""
-        from_attributes = True
+    # class Config:
+    #     """Helps to convert sqlachemy model of response"""
+    #     from_attributes = True
 
 #class PostOut(PostBase):
 #

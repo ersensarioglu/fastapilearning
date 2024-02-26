@@ -1,9 +1,10 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """Read environment variables with the same name
     it is case insensitive
     you can also default if none found"""
+    model_config = SettingsConfigDict(env_file=".env")
     database_hostname: str
     database_port: str
     database_password: str
@@ -13,7 +14,7 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expiry_minutes: int
 
-    class Config:
-        env_file= ".env" # Sets variables from file
+#    class ConfigDict:
+#        env_file= ".env" # Sets variables from file
 
 settings = Settings()
