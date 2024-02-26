@@ -33,4 +33,4 @@ app.include_router(vote.router)
 async def root(): # use async for a long operation or you don't need to wait for response.
                   # Name doesnt matter but name it descriptive
     """Get root"""
-    return {"message": "Welcome to my API"} # Python dictionary automatically converted to json
+    return {"message": "Welcome to my API!!"} # Python dictionary automatically converted to json
