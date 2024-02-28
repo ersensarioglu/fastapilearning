@@ -53,8 +53,7 @@ class Response(PostBase):
     created_at: datetime
     created_by: int
     creator: UserOut
-    votes: int
-
+ 
     # class Config:
     #     """Helps to convert sqlachemy model of response"""
     #     from_attributes = True

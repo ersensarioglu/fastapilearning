@@ -14,7 +14,7 @@ router = APIRouter(
 @router.get("/", response_model=List[schemas.Response])
 def get_saposts(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str] = ""): # Will create database defined in models.py
     """Test Sqlalchemy model"""
-    print("start")
+    print(current_user.email)
     posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all() # Get all posts
 #    results = db.query(models.Post, func.count(models.Vote.post_id)).join(models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).all()
     return posts

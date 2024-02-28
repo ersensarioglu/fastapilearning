@@ -1,5 +1,5 @@
 """Create jwt token"""
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from jose import jwt, JWTError
 from app import schemas, database, models
 from fastapi import Depends, status, HTTPException
@@ -16,7 +16,7 @@ ACCESS_TOKEN_EXPIRY_MINUTES = settings.access_token_expiry_minutes
 def create_access_token(data: dict):
     """Encoded token"""
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRY_MINUTES)
+    expire = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRY_MINUTES)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
