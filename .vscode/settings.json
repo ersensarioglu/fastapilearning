@@ -3,7 +3,7 @@
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
         "-v",
-        "--cov=myproj/",
+        "--cov=app/",
         "--cov-report=xml",
         "--pdb",
         "tests/"

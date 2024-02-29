@@ -12,6 +12,18 @@ def test_create_user(client):
     assert new_user.created_at != ""
     assert res.status_code == 201
 
+def test_get_user(authorized_client, test_user):
+    res = authorized_client.get(f"/users/{test_user['id']}")
+    assert res.status_code == 200
+
+def test_get_wrong_user(authorized_client, test_user2):
+    res = authorized_client.get(f"/users/{test_user2['id']}")
+    assert res.status_code == 404
+
+def test_get_user_not_exist(authorized_client, test_user2):
+    res = authorized_client.get("/users/55")
+    assert res.status_code == 404
+
 def test_login_user(client, test_user):
     print("Login user")
     res = client.post("/login", data={"username": test_user['email'], "password": test_user['password']})
