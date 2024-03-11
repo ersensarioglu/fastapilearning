@@ -10,6 +10,32 @@ on:
 
 jobs:
   job1:
+    environment:
+      name: build
+    env:
+      DATABASE_HOSTNAME: ${{secrets.DATABASE_HOSTNAME}}
+      DATABASE_PORT: ${{secrets.DATABASE_PORT}}
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+      DATABASE_NAME: ${{secrets.DATABASE_NAME}}
+      DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
+      SECRET_KEY: ${{secrets.SECRET_KEY}}
+      ALGORITHM: ${{secrets.ALGORITHM}}
+      ACCESS_TOKEN_EXPIRY_MINUTES: ${{secrets.ACCESS_TOKEN_EXPIRY_MINUTES}}
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{secrets.DATABASE_USERNAME}}
+          POSTGRES_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+          POSTGRES_DB: ${{secrets.DATABASE_NAME}}_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     runs-on: ubuntu-latest
     steps:
       - name: Check-out code
@@ -22,3 +48,7 @@ jobs:
         run: python -m pip install --upgrade pip
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Test with pytest
+        run: |
+          pip install pytest
+          pytest
