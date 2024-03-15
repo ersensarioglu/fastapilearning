@@ -7,5 +7,6 @@
         "--cov-report=xml",
         "--pdb",
         "tests/"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic"
 }
